@@ -2,6 +2,12 @@
 
 {% block title %}{{ post.title }}{% endblock %}
 
+{% block sidebar %}
+  <h4>
+    <a href="{% url 'blog:edit_post' post.id %}">Edit Post</a>
+  </h4>
+{% endblock sidebar %}
+
 {% block content %}
 <div class="card mb-3">
 
@@ -33,6 +39,7 @@
   {% empty %}
     There are no similar posts yet.
   {% endfor %}
+
   {% with comments.count as total_comments %}
     <h3>
       {{ total_comments }} comment{{ total_comments|pluralize }}

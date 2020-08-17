@@ -1,11 +1,11 @@
 from django.db.models import Count
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage,\
                                   PageNotAnInteger
 from django.core.mail import send_mail
 from django.views.generic import ListView
 from .models import Post, Comment
-from .forms import EmailPostForm, CommentForm
+from .forms import EmailPostForm, CommentForm, NewPostForm, EditPostForm
 from taggit.models import Tag
 
 
@@ -27,19 +27,18 @@ def post_list(request, tag_slug=None):
     except EmptyPage:
         # If page is out of range deliver last page of results
         posts = paginator.page(paginator.num_pages)
-    return render(request,
-                 'blog/post/list.html',
-                 {'page': page,
-                  'posts': posts,
-                  'tag': tag})
+    return render(request, 'blog/post/list.html',
+                  {'page': page,
+                   'posts': posts,
+                   'tag': tag})
 
 
 def post_detail(request, year, month, day, post):
     post = get_object_or_404(Post, slug=post,
-                                   status='published',
-                                   publish__year=year,
-                                   publish__month=month,
-                                   publish__day=day)
+                             status='published',
+                             publish__year=year,
+                             publish__month=month,
+                             publish__day=day)
 
     # List of active comments for this post
     comments = post.comments.filter(active=True)
@@ -105,4 +104,40 @@ def post_share(request, post_id):
     return render(request, 'blog/post/share.html', {'post': post,
                                                     'form': form,
                                                     'sent': sent})
+
+
+def new_post(request):
+
+    if request.method != 'POST':
+        # No data submitted; create a blank form.
+        form = NewPostForm()
+    else:
+        # POST data submitted; process data.
+        form = NewPostForm(data=request.POST)
+        if form.is_valid():
+            new_entry = form.save(commit=False)
+            new_entry.save()
+            form.save_m2m()
+            return redirect('blog:post_list')
+
+    context = {'form': form}
+    return render(request, 'blog/post/new_post.html', context)
+
+
+def edit_post(request, post_id):
+    """Edit an existing entry."""
+    post = Post.published.get(id=post_id)
+
+    if request.method != 'POST':
+        # Initial request; pre-fill form with the current entry.
+        form = EditPostForm(instance=post)
+    else:
+        # POST data submitted; process data.
+        form = EditPostForm(instance=post, data=request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('blog:post_detail', post_id=post.id)
+
+    context = {'post': post, 'form': form}
+    return render(request, 'blog/post/edit_post.html', context)
 
