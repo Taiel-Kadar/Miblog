@@ -4,12 +4,13 @@
 
 {% block content %}
   {% if sent %}
-    <h1>E-mail successfully sent</h1>
+    <h4>E-mail successfully sent</h4>
     <p>
       "{{ post.title }}" was successfully sent to {{ form.cleaned_data.to }}.
     </p>
   {% else %}
-    <h1>Share "{{ post.title }}" by e-mail</h1>
+    <h4>Share "{{ post.title }}" by e-mail</h4>
+
     <form method="post">
       {{ form.as_p }}
       {% csrf_token %}

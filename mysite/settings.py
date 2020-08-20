@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+import django_heroku
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -124,9 +126,18 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_HOST = 'smtp.mailgun.org'
-EMAIL_HOST_USER = 'postmaster@sandbox5607b33b5e984671874eab270e425bbc.mailgun.org'
-EMAIL_HOST_PASSWORD = '730bd15222d1d642cc46e24251f1f688-ffefc4e4-d6380afe'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Set up SMTP server below and on 'views.py' "post_share" function change "send_mail" email from 'admin@mysite.com' to your real email.
+# EMAIL_HOST = ''
+# EMAIL_HOST_USER = ''
+# EMAIL_HOST_PASSWORD = ''
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+
+# My settings
+LOGIN_URL = 'users:login'
+
+# Heroku settings
+django_heroku.settings(locals())
+
+

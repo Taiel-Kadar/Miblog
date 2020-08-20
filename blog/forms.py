@@ -1,5 +1,6 @@
 from django import forms
 from .models import Comment, Post
+from django.contrib.auth.decorators import login_required
 
 
 class EmailPostForm(forms.Form):
@@ -26,4 +27,10 @@ class EditPostForm(forms.ModelForm):
     class Meta:
         model = Post
         fields = ('title', 'body')
+
+
+class DeletePostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ()
 

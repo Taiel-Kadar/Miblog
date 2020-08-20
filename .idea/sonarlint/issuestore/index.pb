@@ -29,3 +29,9 @@ S
 #blog/templates/blog/post/share.html,f/5/f55f05a0f1ddfee3577ecb4120c8cf06bf358c23
 W
 'blog/templates/blog/post/edit_post.html,0/a/0a67a3b5f6b11a8be5fb1bc76756ae169a28f4d5
+Y
+)blog/templates/blog/post/delete_post.html,4/e/4ef6a5fcc52a12ed3f22c43a9bd091ab3838ff22
+=
+users/urls.py,7/e/7ebb6dc32a2768a7e73ce1c83409f9c85bd4ad6a
+W
+'users/templates/registration/login.html,c/d/cdd52bbd3b8779381ef811df005a74ac0e96baa4

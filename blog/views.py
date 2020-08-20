@@ -5,8 +5,10 @@ from django.core.paginator import Paginator, EmptyPage,\
 from django.core.mail import send_mail
 from django.views.generic import ListView
 from .models import Post, Comment
-from .forms import EmailPostForm, CommentForm, NewPostForm, EditPostForm
+from .forms import EmailPostForm, CommentForm, NewPostForm, EditPostForm, DeletePostForm
 from taggit.models import Tag
+from django.http import HttpResponseRedirect
+from django.contrib.auth.decorators import login_required
 
 
 def post_list(request, tag_slug=None):
@@ -27,18 +29,14 @@ def post_list(request, tag_slug=None):
     except EmptyPage:
         # If page is out of range deliver last page of results
         posts = paginator.page(paginator.num_pages)
-    return render(request, 'blog/post/list.html',
-                  {'page': page,
-                   'posts': posts,
-                   'tag': tag})
+
+    context = {'page': page, 'posts': posts, 'tag': tag}
+    return render(request, 'blog/post/list.html', context)
 
 
-def post_detail(request, year, month, day, post):
-    post = get_object_or_404(Post, slug=post,
-                             status='published',
-                             publish__year=year,
-                             publish__month=month,
-                             publish__day=day)
+def post_detail(request, post_slug):
+    post = get_object_or_404(Post, slug=post_slug,
+                             status='published',)
 
     # List of active comments for this post
     comments = post.comments.filter(active=True)
@@ -65,13 +63,10 @@ def post_detail(request, year, month, day, post):
     similar_posts = similar_posts.annotate(same_tags=Count('tags'))\
                                 .order_by('-same_tags','-publish')[:4]
 
-    return render(request,
-                  'blog/post/detail.html',
-                  {'post': post,
-                   'comments': comments,
-                   'new_comment': new_comment,
-                   'comment_form': comment_form,
-                   'similar_posts': similar_posts})
+    context = {'post': post, 'comments': comments,
+               'new_comment': new_comment, 'comment_form': comment_form,
+               'similar_posts': similar_posts}
+    return render(request, 'blog/post/detail.html', context)
 
 
 class PostListView(ListView):
@@ -81,9 +76,10 @@ class PostListView(ListView):
     template_name = 'blog/post/list.html'
 
 
-def post_share(request, post_id):
-    # Retrieve post by id
-    post = get_object_or_404(Post, id=post_id, status='published')
+@login_required
+def post_share(request, post_slug):
+    # Retrieve post by slug
+    post = get_object_or_404(Post, slug=post_slug, status='published')
     sent = False
 
     if request.method == 'POST':
@@ -96,16 +92,17 @@ def post_share(request, post_id):
             subject = f"{cd['name']} recommends you read {post.title}"
             message = f"Read {post.title} at {post_url}\n\n" \
                       f"{cd['name']}\'s comments: {cd['comments']}"
-            send_mail(subject, message, 'postmaster@sandbox5607b33b5e984671874eab270e425bbc.mailgun.org', [cd['to']])
+            send_mail(subject, message, 'admin@mysite.com', [cd['to']])
             sent = True
-
+    
     else:
         form = EmailPostForm()
-    return render(request, 'blog/post/share.html', {'post': post,
-                                                    'form': form,
-                                                    'sent': sent})
+
+    context = {'post': post, 'form': form, 'sent': sent}
+    return render(request, 'blog/post/share.html', context)
 
 
+@login_required
 def new_post(request):
 
     if request.method != 'POST':
@@ -124,20 +121,27 @@ def new_post(request):
     return render(request, 'blog/post/new_post.html', context)
 
 
-def edit_post(request, post_id):
+@login_required
+def edit_post(request, post_slug):
     """Edit an existing entry."""
-    post = Post.published.get(id=post_id)
+    post = get_object_or_404(Post, slug=post_slug)
 
-    if request.method != 'POST':
-        # Initial request; pre-fill form with the current entry.
-        form = EditPostForm(instance=post)
-    else:
-        # POST data submitted; process data.
-        form = EditPostForm(instance=post, data=request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('blog:post_detail', post_id=post.id)
+    form = EditPostForm(request.POST or None, instance=post)
+    if form.is_valid():
+        form.save()
+        return HttpResponseRedirect(post.get_absolute_url())
 
-    context = {'post': post, 'form': form}
+    context = {'form': form}
     return render(request, 'blog/post/edit_post.html', context)
 
+
+@login_required
+def delete_post(request, post_slug):
+    post = get_object_or_404(Post, slug=post_slug)
+
+    if request.method == 'POST':
+        post.delete()
+        return HttpResponseRedirect("/")
+
+    context = {'post': post}
+    return render(request, 'blog/post/delete_post.html', context)
