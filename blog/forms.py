@@ -26,7 +26,7 @@ class NewPostForm(forms.ModelForm):
 class EditPostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ('title', 'body')
+        fields = ('title', 'body', 'tags')
 
 
 class DeletePostForm(forms.ModelForm):
