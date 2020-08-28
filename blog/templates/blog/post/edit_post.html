@@ -1,12 +1,18 @@
 {% extends 'blog/base.html' %}
 {% load bootstrap4 %}
 
+{% block sidebar %}
+  <h4>
+    <a href="{% url 'blog:post_list' %}">Return to Home</a>
+  </h4>
+{% endblock sidebar %}
 
 {% block content %}
     <h4>Edit Post:</h4>
 
      <form method="post">
          {% csrf_token %}
+         {{ form.media }}
          {{ form.as_p }}
          <input type="submit" class="btn btn-primary" value="Save Changes">
      </form>

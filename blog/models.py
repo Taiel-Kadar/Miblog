@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.urls import reverse
 from django.contrib.auth.models import User
 from taggit.managers import TaggableManager
+from ckeditor.fields import RichTextField
 
 
 class PublishedManager(models.Manager):
@@ -15,14 +16,13 @@ class Post(models.Model):
         ('draft', 'Draft'),
         ('published', 'Published'),
     )
-    title = models.CharField(max_length=250)
+    title = models.CharField(max_length=250, unique=True)
     slug = models.SlugField(max_length=250,
                             unique=True,
                             unique_for_date='publish')
-    author = models.ForeignKey(User,
-                              on_delete=models.CASCADE,
-                              related_name='blog_posts')
-    body = models.TextField()
+    author = models.ForeignKey(User, on_delete=models.CASCADE,
+                               related_name='blog_posts')
+    body = RichTextField(blank=True, null=True)
     publish = models.DateTimeField(default=timezone.now)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

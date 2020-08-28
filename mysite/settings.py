@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'taggit',
     'users.apps.UsersConfig',
     'bootstrap4',
+    'ckeditor',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
