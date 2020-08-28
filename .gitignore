@@ -2,6 +2,7 @@
 *.log
 *.pot
 *.pyc
+try_b/
 env
 venv*
 __pycache__
