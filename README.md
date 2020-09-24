@@ -6,7 +6,7 @@
 - Taggit
 - Heroku
 - Gunicorn
-- Sqlite3
+- PostgreSQL
 
 ### Features
 - Create, edit, delete posts.
@@ -18,6 +18,7 @@
 - Share posts via email.
 - Recommend similar posts based on tags.
 - Add comments.
+- Search Bar
 
 ### Installation
 - Clone the repository:
